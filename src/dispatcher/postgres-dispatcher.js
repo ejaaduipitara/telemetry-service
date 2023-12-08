@@ -27,10 +27,12 @@ const tableColumns = [
 class PostgresDispatcher extends winston.Transport {
 
     constructor(options) {
-        if(options?.host || options?.username || options?.password || options?.db || options?.tableName){
-            throw new Error('Postgress details are required');
+        if(!options?.host || !options?.username || !options?.password || !options?.db || !options?.tableName){
+            console.error('Postgress details are required');
+            process.exit(1)
         }
         super();
+        this.name = 'postgres';
         this.options = options;
         this.pool = new Pool({
             user: options.username,
@@ -56,7 +58,6 @@ class PostgresDispatcher extends winston.Transport {
                 }).catch((error) => {
                     client.release();
                     console.error(`Error creating table ${options.tableName}:`, error);
-                    process.exit(1)
                 })
             }).catch(error => {
                 console.error('Error connecting to the database:', error);

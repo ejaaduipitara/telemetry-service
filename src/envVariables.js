@@ -4,7 +4,7 @@ const envVariables = {
     level: process.env.telemetry_log_level || 'info',
     localStorageEnabled: process.env.telemetry_local_storage_enabled || 'true',
     telemetryProxyEnabled: process.env.telemetry_proxy_enabled,
-    dispatcher: process.env.telemetry_local_storage_type,
+    dispatcher: process.env.telemetry_local_storage_type || 'postgres',
     proxyURL: process.env.telemetry_proxy_url,
     proxyAuthKey: process.env.telemetry_proxy_auth_key,
     encodingType: process.env.telemetry_encoding_type,
@@ -19,12 +19,12 @@ const envVariables = {
     contactPoints: (process.env.telemetry_cassandra_contactpoints || 'localhost').split(','),
     cassandraTtl: process.env.telemetry_cassandra_ttl,
     port: process.env.telemetry_service_port || 9001,
-    threads: process.env.telemetry_service_threads || os.cpus().length,
-    host: process.env.telemetry_pg_host,
-    username: process.env.telemetry_pg_username,
-    password: process.env.telemetry_pg_password,
-    db: process.env.telemetry_pg_db,
-    tableName: process.env.telemetry_pg_tablename,
-    dataExtract: process.env.telemetry_dataextract || 'false'
+    threads: process.env.telemetry_service_threads || 1,
+    host: process.env.telemetry_pg_host || "localhost",
+    username: process.env.telemetry_pg_username || "postgres",
+    password: process.env.telemetry_pg_password || "postgres",
+    db: process.env.telemetry_pg_db || "postgres",
+    tableName: process.env.telemetry_pg_tablename || "djp_events",
+    dataExtract: process.env.telemetry_dataextract || 'true'
 }
 module.exports = envVariables;

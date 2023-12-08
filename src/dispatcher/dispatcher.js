@@ -29,6 +29,7 @@ class Dispatcher {
             this.logger.add(winston.transports.Cassandra, this.options);
             console.log('Cassandra transport enabled !!!');
         } else if (this.options.dispatcher === 'postgres') {
+            // console.log(`winston.transports.Postgres ${winston.transports.Postgres}`)
             this.logger.add(winston.transports.Postgres, this.options);
             console.log('Postgres transport enabled !!!');
         } else { // Log to console
@@ -44,10 +45,11 @@ class Dispatcher {
     }
 
     health(callback) {
+        console.log(Object.keys(this.logger.transports))
         if (this.options.dispatcher === 'kafka') {
             this.logger.transports['kafka'].health(callback);
         } else if (this.options.dispatcher === 'postgres') {
-            this.logger.transports['undefined'].health(callback);
+            this.logger.transports['postgres'].health(callback);
         } else if (this.options.dispatcher === 'console') {
             callback(true)
         } else { // need to add health method for file/cassandra
