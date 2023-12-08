@@ -19,6 +19,12 @@ const envVariables = {
     contactPoints: (process.env.telemetry_cassandra_contactpoints || 'localhost').split(','),
     cassandraTtl: process.env.telemetry_cassandra_ttl,
     port: process.env.telemetry_service_port || 9001,
-    threads: process.env.telemetry_service_threads || os.cpus().length
+    threads: process.env.telemetry_service_threads || os.cpus().length,
+    host: process.env.telemetry_pg_host,
+    username: process.env.telemetry_pg_username,
+    password: process.env.telemetry_pg_password,
+    db: process.env.telemetry_pg_db,
+    tableName: process.env.telemetry_pg_tablename,
+    dataExtract: process.env.telemetry_dataextract || 'false'
 }
 module.exports = envVariables;
