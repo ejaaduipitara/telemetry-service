@@ -76,18 +76,15 @@ class PostgresDispatcher extends winston.Transport {
                 // Generate an array of parameterized values for the insert
                 const values = dataToInsert.map(row => `('${row.mid}', '${level}', '${JSON.stringify(row)}', NOW())`).join(', ');
                 // Construct and execute the insert query
-                const query = `INSERT INTO ${this.options.tableName} (${fields.join(', ')}) VALUES ${values}`;
+                const query = `INSERT INTO ${this.options.tableName} (${fields.join(', ')}) VALUES ${values} ON CONFLICT (mid) DO NOTHING`;
                 client.query(query, (err, result) => {
                     release(); // Release the client back to the pool
                     if (err) {
                         console.error('Error inserting multiple rows:', err);
                         callback(err, null);
                     } else {
-                        console.log('Multiple rows inserted successfully');
                         callback(null, true);
                     }
-                    // Close the connection pool
-                    this.pool.end();
                 });
             });
         } else {
