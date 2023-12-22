@@ -82,7 +82,8 @@ class TelemetryService {
             ver: options.ver || '1.0',
             ets: new Date().getTime(),
             params: options.params || {},
-            responseCode: options.responseCode || 'SUCCESS'
+            responseCode: options.responseCode || 'SUCCESS',
+            result: options.result || {}
         }
         res.status(200);
         res.json(resObj);
@@ -96,6 +97,25 @@ class TelemetryService {
             headers: headers,
             body: data
         };
+    }
+    getMetricsData(req, res) {
+        this.dispatcher.getMetricsData(req, this.getMetricsRequestCallBack(req, res));
+    }
+    getMetricsRequestCallBack(req, res) {
+        return (err, data) => {
+            if (err) {
+                this.sendError(res, { id: req?.id || 'api.telemetry.metrics', params: { err: err } });
+            }else {
+                this.sendSuccess(res, { 
+                    id: req?.id || 'api.telemetry.metrics', 
+                    params: {
+                        resmsgid: uuidv1(),
+                        msgid: req?.body?.params?.msgid || uuidv1()
+                    },
+                    result: data
+                });
+            }
+        }
     }
 }
 

@@ -56,6 +56,12 @@ class Dispatcher {
             callback(false)
         }
     }
+
+    getMetricsData(req, callback){
+        this.logger.transports['postgres'].getMetricsData(req, callback);
+    }
+
+
 }
 
 module.exports = { Dispatcher };

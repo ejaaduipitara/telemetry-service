@@ -117,6 +117,125 @@ class PostgresDispatcher extends winston.Transport {
                 callback(false);
             });
     }
+
+    async getMetricsData(req, callback){
+
+        const startTimeStamp = req?.body?.request?.startTimeStamp;
+        const endTimeStamp = req?.body?.request?.endTimeStamp;
+
+        if((startTimeStamp || endTimeStamp) && (new Date(startTimeStamp) == "Invalid Date" || new Date(endTimeStamp) == "Invalid Date")){
+            callback("Invalid startTimeStamp or endTimeStamp", null);
+        }
+
+        this.options.mobilePdataId =  this.options?.mobilePdataId || `${this.options.environment}.ejp.mobileapp`
+        this.options.activityPdataId = this.options?.activityPdataId || 'ejp.story.api.service'
+        this.options.IVRSPdataId = this.options?.IVRSPdataId || `${this.options.environment}.ejp.ivrs`
+        this.options.sakhiPdataId = this.options?.sakhiPdataId || 'ejp.sakhi.api.service'
+        const config =    [
+                {
+                    "id": "total_devices",
+                    "label": "Total Devices",
+                    "query": `SELECT COUNT(DISTINCT message->'context'->'did'::text) AS total_devices 
+                                FROM ${this.options.tableName} WHERE message->'context'->'did' IS NOT NULL 
+                                AND message->'context'->'pdata'->>'id' = '${this.options.mobilePdataId}'`,
+                    "startTimeStamp": "2023-12-20 00:00:00",
+                    "endTimeStamp": "2023-12-30 00:00:00"
+                },
+                {
+                    "id": "total_plays",
+                    "label": "Total Plays",
+                    "query": `SELECT COUNT(*) AS total_plays 
+                                FROM ${this.options.tableName} WHERE message->'edata'->>'type' = 'content' 
+                                AND message->'edata'->>'mode' = 'play'`,
+                    "startTimeStamp": "",
+                    "endTimeStamp": ""
+                },
+                {
+                    "id": "total_messages_from_activity_service",
+                    "label": "Total messages from Activity Service",
+                    "query": `SELECT COUNT(*) AS total_messages_from_activity_service 
+                                FROM ${this.options.tableName} WHERE message->'context'->'pdata'->>'id'='${this.options.activityPdataId}'
+                                AND message->>'eid' = 'LOG' AND message->'edata'->>'type' = 'api_access'`,
+                    "startTimeStamp": "",
+                    "endTimeStamp": ""
+                },
+                {
+                    "id": "total_messages_from_sakhi_service",
+                    "label": "Total messages from Sakhi Service",
+                    "query": `SELECT COUNT(*) AS total_messages_from_sakhi_service 
+                                FROM ${this.options.tableName} WHERE message->'context'->'pdata'->>'id'='${this.options.sakhiPdataId}'
+                                AND message->>'eid' = 'LOG' AND message->'edata'->>'type' = 'api_access'`,
+                    "startTimeStamp": "",
+                    "endTimeStamp": ""
+                },
+                {
+                    "id": "total_IVRS_calls",
+                    "label": "Total Devices",
+                    "query": `SELECT COUNT(*) AS total_IVRS_calls 
+                                FROM ${this.options.tableName} 
+                                WHERE message->'context'->'pdata'->>'id' = '${this.options.IVRSPdataId}'
+                                AND message->>'eid' = 'START'`,
+                    "startTimeStamp": "",
+                    "endTimeStamp": ""
+                }
+            ]
+
+        try{
+            let asyncFunctions = []
+            _.forEach(config, (data) => {
+                if(data?.query) {
+                    const query = this.prepareQuery(req, data);
+                    asyncFunctions.push(this.pool.query(query));
+                } else {
+                    console.error(`Error: No query passed in ${data.id}`)
+                }
+            })
+
+            let result = {};
+            Promise.allSettled(asyncFunctions)
+                .then(results => {
+                    _.forEach(results, (res) => {
+                        if(res.status === 'fulfilled'){
+                            result = {...result, ...(res?.value?.rows[0] || {})}
+                        } else {
+                            console.error("error ", res?.reason)
+                        }
+                    })
+                    callback(null, result);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        } catch(err){
+            console.error(`Error `, err);
+            callback(err.stack);
+        }
+        
+    }
+
+    prepareQuery(req, data){
+        const startTimeStamp = req?.body?.request?.startTimeStamp;
+        const endTimeStamp = req?.body?.request?.endTimeStamp;
+        
+        let query = data.query
+            
+        if(!startTimeStamp && data.startTimeStamp){
+            query = `${query} AND created_on >= '${data.startTimeStamp}'::timestamp`;
+        }
+        if(endTimeStamp && data.endTimeStamp){
+            query = `${query} AND created_on <= '${data.endTimeStamp}'::timestamp`;
+        }
+        if(startTimeStamp){
+            query = `${query} AND created_on >= '${startTimeStamp}'::timestamp`;
+        }
+        if(endTimeStamp){
+            query = `${query} AND created_on <= '${endTimeStamp}'::timestamp`;
+        }
+    
+        return query
+    }
+
+
 }
 
 winston.transports.Postgres = PostgresDispatcher;
