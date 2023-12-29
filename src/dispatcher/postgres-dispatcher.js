@@ -40,7 +40,8 @@ class PostgresDispatcher extends winston.Transport {
             database: options.db,
             password: options.password,
             port: 5432,
-            max: options?.minPool || 10
+            max: options?.minPool || 10,
+            ssl: options.ssl || false
         });
 
         const createTableQuery = `CREATE TABLE IF NOT EXISTS ${options.tableName} (

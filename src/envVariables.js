@@ -26,6 +26,7 @@ const envVariables = {
     db: process.env.telemetry_pg_db || "postgres",
     tableName: process.env.telemetry_pg_tablename || "djp_events",
     dataExtract: process.env.telemetry_dataextract || 'true',
-    environment: process.env.telemetry_environment|| 'dev'
+    environment: process.env.telemetry_environment|| 'dev',
+    ssl: process.env.telemetry_pg_ssl || false
 }
 module.exports = envVariables;
