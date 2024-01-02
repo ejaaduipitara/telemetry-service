@@ -34,15 +34,18 @@ class PostgresDispatcher extends winston.Transport {
         super();
         this.name = 'postgres';
         this.options = options;
-        this.pool = new Pool({
+        let poolOptions = {
             user: options.username,
             host: options.host,
             database: options.db,
             password: options.password,
             port: 5432,
-            max: options?.minPool || 10,
-            ssl: { rejectUnauthorized: false }
-        });
+            max: options?.minPool || 10
+        }
+        if(options.ssl){
+            poolOptions.ssl = { rejectUnauthorized: false }
+        }
+        this.pool = new Pool(poolOptions);
 
         const createTableQuery = `CREATE TABLE IF NOT EXISTS ${options.tableName} (
             ${tableColumns.map(column => `${column.name} ${column.dataType}`).join(', ')},
