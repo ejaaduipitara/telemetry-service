@@ -164,11 +164,22 @@ class PostgresDispatcher extends winston.Transport {
                     "endTimeStamp": ""
                 },
                 {
-                    "id": "total_messages_from_sakhi_service",
-                    "label": "Total messages from Sakhi Service",
-                    "query": `SELECT COUNT(*) AS total_messages_from_sakhi_service 
+                    "id": "total_messages_from_teacher_sakhi_service",
+                    "label": "Total messages from Teacher Sakhi Service",
+                    "query": `SELECT COUNT(*) AS total_messages_from_teacher_sakhi_service 
                                 FROM ${this.options.tableName} WHERE message->'context'->'pdata'->>'id'='${this.options.sakhiPdataId}'
-                                AND message->>'eid' = 'LOG' AND message->'edata'->>'type' = 'api_access'`,
+                                AND message->>'eid' = 'LOG' AND message->'edata'->>'type' = 'api_access'
+                                AND message->'edata'->'params' @> '[{"input_audienceType": "teacher"}]'`,
+                    "startTimeStamp": "",
+                    "endTimeStamp": ""
+                },
+                {
+                    "id": "total_messages_from_parent_sakhi_service",
+                    "label": "Total messages from Parent Sakhi Service",
+                    "query": `SELECT COUNT(*) AS total_messages_from_parent_sakhi_service 
+                                FROM ${this.options.tableName} WHERE message->'context'->'pdata'->>'id'='${this.options.sakhiPdataId}'
+                                AND message->>'eid' = 'LOG' AND message->'edata'->>'type' = 'api_access'
+                                AND message->'edata'->'params' @> '[{"input_audienceType": "parent"}]'`,
                     "startTimeStamp": "",
                     "endTimeStamp": ""
                 },
