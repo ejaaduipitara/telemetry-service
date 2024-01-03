@@ -150,7 +150,7 @@ class PostgresDispatcher extends winston.Transport {
                     "label": "Total Plays",
                     "query": `SELECT COUNT(*) AS total_plays 
                                 FROM ${this.options.tableName} WHERE message->'edata'->>'type' = 'content' 
-                                AND message->'edata'->>'mode' = 'play'`,
+                                AND message->>'eid' = 'START'`,
                     "startTimeStamp": "",
                     "endTimeStamp": ""
                 },
