@@ -1,7 +1,9 @@
 const uuidv1 = require('uuid/v1'),
     request = require('request'),
     DispatcherClass = require('../dispatcher/dispatcher').Dispatcher;
-config = require('../envVariables')
+const config = require('../envVariables');
+const axios =  require("axios");
+const _ =  require("lodash");
 
 // TODO: Make this efficient. Implementation to be similar to typesafe config. Right now one configuration holds 
 // together all supported transport configurations
@@ -73,7 +75,7 @@ class TelemetryService {
             params: options.params || {},
             responseCode: options.responseCode || 'SERVER_ERROR'
         }
-        res.status(500);
+        res.status(options.statusCode || 500);
         res.json(resObj);
     }
     sendSuccess(res, options) {
@@ -116,6 +118,68 @@ class TelemetryService {
                 });
             }
         }
+    }
+    async fetchDashboardToken(req, res) {
+        const dashboardIds = req.body?.request?.dashboardIds
+        if(!dashboardIds){
+            return this.sendError(res, { 
+                id: req?.id || 'api.telemetry.access.token', 
+                statusCode: 400, 
+                responseCode: 'ERR_BAD_REQUEST',
+                params: {
+                    errmsg: "dashboardIds is requird"
+                } 
+            });
+        }
+        try {
+            const accessTokenRes = await this.fetchAccessToken(req, res)
+            const accessToken = accessTokenRes.data?.access_token;
+            const resources = []
+            _.forEach(dashboardIds, function(value) {
+                resources.push({
+                    "type": "dashboard",
+                    "id": value
+                  })
+            });
+            
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`,
+            }
+            
+            const response = await axios.post(`${config.supersethost}/api/v1/security/guest_token`, 
+                {
+                    "resources": resources, 
+                    "rls": [], "user": {}
+                }, {headers}
+            );
+
+            if(!response.data?.token) {
+                return this.sendError(res, { id: req?.id || 'api.telemetry.access.token', params: { err: 'Token genrartion failed.'} });
+            }
+
+            this.sendSuccess(res, { 
+                id: req?.id || 'api.telemetry.access.token', 
+                params: {
+                    resmsgid: uuidv1(),
+                    msgid: req?.body?.params?.msgid || uuidv1()
+                },
+                result: response.data
+            });
+            
+        } catch (error) {
+            console.error("fetchGuestToken error ", error)
+            this.sendError(res, { id: req?.id || 'api.telemetry.access.token', params: { err: error.message, errorCode:  error.code} });
+        }
+    }
+    async fetchAccessToken(req, res){
+        const response = await axios.post(`${config.supersethost}/api/v1/security/login`, {
+            "username": config.supersetAdminUser,
+            "password": config.supersetAdminPass,
+            "provider": "db",
+            "refresh": true,
+        });
+        return response;
     }
 }
 

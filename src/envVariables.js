@@ -27,6 +27,9 @@ const envVariables = {
     tableName: process.env.telemetry_pg_tablename || "djp_events",
     dataExtract: process.env.telemetry_dataextract || 'true',
     environment: process.env.telemetry_environment|| 'dev',
-    ssl: process.env.telemetry_pg_ssl || false
+    ssl: process.env.telemetry_pg_ssl || false,
+    supersetAdminUser: process.env.telemetry_superset_admin_username || 'admin',
+    supersetAdminPass: process.env.telemetry_superset_admin_password || 'admin123',
+    supersethost: process.env.telemetry_superset_host || 'https://dashboard.dev.ejp.sunbird.org'
 }
 module.exports = envVariables;
