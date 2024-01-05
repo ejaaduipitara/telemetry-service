@@ -155,8 +155,8 @@ class PostgresDispatcher extends winston.Transport {
                     "endTimeStamp": ""
                 },
                 {
-                    "id": "total_messages_from_activity_service",
-                    "label": "Total messages from Activity Service",
+                    "id": "total_messages_from_story_bot",
+                    "label": "Total messages from Story Bot",
                     "query": `SELECT COUNT(*) AS total_messages_from_activity_service 
                                 FROM ${this.options.tableName} WHERE message->'context'->'pdata'->>'id'='${this.options.activityPdataId}'
                                 AND message->>'eid' = 'LOG' AND message->'edata'->>'type' = 'api_access'`,
@@ -164,8 +164,8 @@ class PostgresDispatcher extends winston.Transport {
                     "endTimeStamp": ""
                 },
                 {
-                    "id": "total_messages_from_teacher_sakhi_service",
-                    "label": "Total messages from Teacher Sakhi Service",
+                    "id": "total_messages_from_teacher_bot",
+                    "label": "Total messages from Teacher Bot",
                     "query": `SELECT COUNT(*) AS total_messages_from_teacher_sakhi_service 
                                 FROM ${this.options.tableName} WHERE message->'context'->'pdata'->>'id'='${this.options.sakhiPdataId}'
                                 AND message->>'eid' = 'LOG' AND message->'edata'->>'type' = 'api_access'
@@ -174,9 +174,9 @@ class PostgresDispatcher extends winston.Transport {
                     "endTimeStamp": ""
                 },
                 {
-                    "id": "total_messages_from_parent_sakhi_service",
-                    "label": "Total messages from Parent Sakhi Service",
-                    "query": `SELECT COUNT(*) AS total_messages_from_parent_sakhi_service 
+                    "id": "total_messages_from_parent_bot",
+                    "label": "Total messages from Parent Bot",
+                    "query": `SELECT COUNT(*) AS total_messages_from_parent_bot 
                                 FROM ${this.options.tableName} WHERE message->'context'->'pdata'->>'id'='${this.options.sakhiPdataId}'
                                 AND message->>'eid' = 'LOG' AND message->'edata'->>'type' = 'api_access'
                                 AND message->'edata'->'params' @> '[{"input_audienceType": "parent"}]'`,
