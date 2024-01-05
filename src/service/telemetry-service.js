@@ -121,7 +121,7 @@ class TelemetryService {
     }
     async fetchDashboardToken(req, res) {
         const dashboardIds = req.body?.request?.dashboardIds
-        if(!dashboardIds){
+        if(!dashboardIds || _.isEmpty(dashboardIds)){
             return this.sendError(res, { 
                 id: req?.id || 'api.telemetry.access.token', 
                 statusCode: 400, 
@@ -168,7 +168,7 @@ class TelemetryService {
             });
             
         } catch (error) {
-            console.error("fetchGuestToken error ", error)
+            console.error("fetchGuestToken error ", error.message)
             this.sendError(res, { id: req?.id || 'api.telemetry.access.token', params: { err: error.message, errorCode:  error.code} });
         }
     }
