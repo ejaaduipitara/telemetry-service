@@ -157,7 +157,7 @@ class PostgresDispatcher extends winston.Transport {
                 {
                     "id": "total_messages_from_story_bot",
                     "label": "Total messages from Story Bot",
-                    "query": `SELECT COUNT(*) AS total_messages_from_activity_service 
+                    "query": `SELECT COUNT(*) AS total_messages_from_story_bot 
                                 FROM ${this.options.tableName} WHERE message->'context'->'pdata'->>'id'='${this.options.activityPdataId}'
                                 AND message->>'eid' = 'LOG' AND message->'edata'->>'type' = 'api_access'`,
                     "startTimeStamp": "",
@@ -166,7 +166,7 @@ class PostgresDispatcher extends winston.Transport {
                 {
                     "id": "total_messages_from_teacher_bot",
                     "label": "Total messages from Teacher Bot",
-                    "query": `SELECT COUNT(*) AS total_messages_from_teacher_sakhi_service 
+                    "query": `SELECT COUNT(*) AS total_messages_from_teacher_bot
                                 FROM ${this.options.tableName} WHERE message->'context'->'pdata'->>'id'='${this.options.sakhiPdataId}'
                                 AND message->>'eid' = 'LOG' AND message->'edata'->>'type' = 'api_access'
                                 AND message->'edata'->'params' @> '[{"input_audienceType": "teacher"}]'`,
