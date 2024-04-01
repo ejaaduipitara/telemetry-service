@@ -30,8 +30,9 @@ The Telemetry service is designed to seamlessly capture data from various applic
    supersetAdminPass: // superset admin password
    supersethost: // // superset hostname or ip address  
    ```
-4. Run `npm install` to install node modules
-5. Run `node app.js`
+4. Please use [link](https://superset.apache.org/docs/installation/installing-superset-using-docker-compose/) to install superset in locally
+5. Run `npm install` to install node modules
+6. Run `node app.js`
 
 # API Specification and Documentation
 
