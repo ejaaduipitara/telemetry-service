@@ -79,7 +79,7 @@ class PostgresDispatcher extends winston.Transport {
                     return console.error('Error acquiring client:', err);
                 }
                 // Generate an array of parameterized values for the insert
-                const values = dataToInsert.map(row => `('${row.mid}', '${level}', '${JSON.stringify(row)}', NOW())`).join(', ');
+                const values = dataToInsert.map(row => `('${row.mid}', '${level}', '${JSON.stringify(row).replace(/[\']/g, "&apos;")}', NOW())`).join(', ');
                 
                 console.log(`${Date()} Preparing value ======> ", ${values}`)
 
