@@ -41,6 +41,7 @@ class Dispatcher {
     }
 
     dispatch(mid, message, callback) {
+        console.log(`${Date()} Calling logger.log ======> ", ${message}`)
         this.logger.log('info', message, {mid: mid}, callback);
     }
 
