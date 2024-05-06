@@ -15,15 +15,19 @@ class TelemetryService {
     }
     dispatch(req, res) {
         const message = req.body;
+        console.log(`${Date()} Before ======> ", ${message}`)
         message.did = req.get('x-device-id');
         message.channel = req.get('x-channel-id');
         message.pid = req.get('x-app-id');
         if (!message.mid) message.mid = uuidv1();
         message.syncts = new Date().getTime();
+        console.log(`${Date()} After ======> ", ${message}`)
         const data = JSON.stringify(message);
+        console.log(`${Date()} Data stringify ======> ", ${data}`)
         if (this.config.localStorageEnabled === 'true' || this.config.telemetryProxyEnabled === 'true') {
             if (this.config.localStorageEnabled === 'true' && this.config.telemetryProxyEnabled !== 'true') {
                 // Store locally and respond back with proper status code
+                console.log(`${Date()} Calling dispatcher.dispatch ======> ", ${data}`)
                 this.dispatcher.dispatch(message.mid, data, this.getRequestCallBack(req, res));
             } else if (this.config.localStorageEnabled === 'true' && this.config.telemetryProxyEnabled === 'true') {
                 // Store locally and proxy to the specified URL. If the proxy fails ignore the error as the local storage is successful. Do a sync later
