@@ -69,11 +69,10 @@ class PostgresDispatcher extends winston.Transport {
     }
 
     log(level, msg, meta, callback) {
-        console.log("postgres log start ======> ", msg)
+        console.log(`${Date()} :: Log :: ===> ${msg}`)
         const fields = tableColumns.map((column) => column.name)
         if(this.options.dataExtract === 'true' && msg.includes('events')){
             const dataToInsert = JSON.parse(msg).events;
-            console.log(`${Date()} dataToInsert ======> ", ${dataToInsert}`)
             return this.pool.connect((err, client, release) => {
                 if (err) {
                     return console.error('Error acquiring client:', err);
@@ -81,20 +80,19 @@ class PostgresDispatcher extends winston.Transport {
                 // Generate an array of parameterized values for the insert
                 const values = dataToInsert.map(row => `('${row.mid}', '${level}', '${JSON.stringify(row).replace(/[\']/g, "&apos;")}', NOW())`).join(', ');
                 
-                console.log(`${Date()} Preparing value ======> ", ${values}`)
+                console.log(`${Date()} :: Preparing query value :: ===> ", ${values}`)
 
                 // Construct and execute the insert query
                 const query = `INSERT INTO ${this.options.tableName} (${fields.join(', ')}) VALUES ${values} ON CONFLICT (mid) DO NOTHING`;
-                
-                console.log(`${Date()} query ======> ", ${query}`)
+                console.log(`${Date()} :: Constructing query :: ===> ", ${query}`)
                 
                 client.query(query, (err, result) => {
                     release(); // Release the client back to the pool
                     if (err) {
-                        console.error('Error inserting multiple rows:', err);
-                        callback(err, null);
+                        console.error('Error while inserting multiple rows into table ==>', err);
+                        return callback(err.message, null);
                     } else {
-                        callback(null, true);
+                        return callback(null, true);
                     }
                 });
             });

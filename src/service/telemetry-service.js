@@ -15,20 +15,23 @@ class TelemetryService {
     }
     dispatch(req, res) {
         const message = req.body;
-        console.log(`${Date()} Before ======> ", ${message}`)
+        console.log(`${Date()} :: Telemetry.dispatch :: ===> ", ${message}`)
         message.did = req.get('x-device-id');
         message.channel = req.get('x-channel-id');
         message.pid = req.get('x-app-id');
         if (!message.mid) message.mid = uuidv1();
         message.syncts = new Date().getTime();
-        console.log(`${Date()} After ======> ", ${message}`)
         const data = JSON.stringify(message);
-        console.log(`${Date()} Data stringify ======> ", ${data}`)
+        console.log(`${Date()} :: converting to json :: ====> ", ${data}`)
         if (this.config.localStorageEnabled === 'true' || this.config.telemetryProxyEnabled === 'true') {
             if (this.config.localStorageEnabled === 'true' && this.config.telemetryProxyEnabled !== 'true') {
                 // Store locally and respond back with proper status code
-                console.log(`${Date()} Calling dispatcher.dispatch ======> ", ${data}`)
-                this.dispatcher.dispatch(message.mid, data, this.getRequestCallBack(req, res));
+                console.log(`${Date()} :: Calling dispatcher.dispatch :: ===> ", ${data}`)
+                this.dispatcher.dispatch(message.mid, data).then((result) => {
+                    this.sendSuccess(res, { id: 'api.telemetry' });
+                }).catch((err) => {
+                    this.sendError(res, { id: 'api.telemetry', params: { err: err } });
+                });
             } else if (this.config.localStorageEnabled === 'true' && this.config.telemetryProxyEnabled === 'true') {
                 // Store locally and proxy to the specified URL. If the proxy fails ignore the error as the local storage is successful. Do a sync later
                 const options = this.getProxyRequestObj(req, data);
