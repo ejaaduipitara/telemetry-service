@@ -41,7 +41,6 @@ class Dispatcher {
     }
 
     dispatch(mid, message) {
-        console.log(`${Date()} :: dispatch :: ======> ", ${message}`)
         return new Promise((resolve, reject) => {
             this.logger.log('info', message, {mid: mid}, (err, result) => {
                if(err) {

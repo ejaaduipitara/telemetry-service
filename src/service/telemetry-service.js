@@ -15,18 +15,16 @@ class TelemetryService {
     }
     dispatch(req, res) {
         const message = req.body;
-        console.log(`${Date()} :: Telemetry.dispatch :: ===> ", ${message}`)
         message.did = req.get('x-device-id');
         message.channel = req.get('x-channel-id');
         message.pid = req.get('x-app-id');
         if (!message.mid) message.mid = uuidv1();
         message.syncts = new Date().getTime();
         const data = JSON.stringify(message);
-        console.log(`${Date()} :: converting to json :: ====> ", ${data}`)
         if (this.config.localStorageEnabled === 'true' || this.config.telemetryProxyEnabled === 'true') {
             if (this.config.localStorageEnabled === 'true' && this.config.telemetryProxyEnabled !== 'true') {
                 // Store locally and respond back with proper status code
-                console.log(`${Date()} :: Calling dispatcher.dispatch :: ===> ", ${data}`)
+                console.log(`${Date()} :: Calling dispatcher.dispatch :: ===> "`)
                 this.dispatcher.dispatch(message.mid, data).then((result) => {
                     this.sendSuccess(res, { id: 'api.telemetry' });
                 }).catch((err) => {
