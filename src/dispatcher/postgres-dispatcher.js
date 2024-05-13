@@ -69,7 +69,6 @@ class PostgresDispatcher extends winston.Transport {
     }
 
     log(level, msg, meta, callback) {
-        console.log(`${Date()} :: Log :: ===> ${msg}`)
         const fields = tableColumns.map((column) => column.name)
         if(this.options.dataExtract === 'true' && msg.includes('events')){
             const dataToInsert = JSON.parse(msg).events;
@@ -79,8 +78,6 @@ class PostgresDispatcher extends winston.Transport {
                 }
                 // Generate an array of parameterized values for the insert
                 const values = dataToInsert.map(row => `('${row.mid}', '${level}', '${JSON.stringify(row).replace(/[\']/g, "&apos;")}', NOW())`).join(', ');
-                
-                console.log(`${Date()} :: Preparing query value :: ===> ", ${values}`)
 
                 // Construct and execute the insert query
                 const query = `INSERT INTO ${this.options.tableName} (${fields.join(', ')}) VALUES ${values} ON CONFLICT (mid) DO NOTHING`;
