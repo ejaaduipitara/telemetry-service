@@ -3,7 +3,7 @@
 The Telemetry service is designed to seamlessly capture data from various applications and services, providing valuable insights into user interactions and system performance. By leveraging this service(API), organizations can gain a comprehensive understanding of real-time usage patterns, enabling informed decision-making and optimization of their digital ecosystem.
 
 # Prerequisites
-*   NodeJs
+*   NodeJs 14+
 *   PostgreSQL
 
 # Installation
