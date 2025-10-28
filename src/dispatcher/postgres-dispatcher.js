@@ -137,31 +137,31 @@ class PostgresDispatcher extends winston.Transport {
         this.options.activityPdataId = this.options?.activityPdataId || 'ejp.story.api.service'
         this.options.IVRSPdataId = this.options?.IVRSPdataId || `${this.options.environment}.ejp.ivrs`
         this.options.sakhiPdataId = this.options?.sakhiPdataId || 'ejp.sakhi.api.service'
+		this.options.viewName	= this.options?.viewName || 'telemetry_data_view'
         const config =    [
                 {
                     "id": "total_devices",
                     "label": "Total Devices",
-                    "query": `SELECT COUNT(DISTINCT message->'context'->'did'::text) AS total_devices 
-                                FROM ${this.options.tableName} WHERE message->'context'->'did' IS NOT NULL 
-                                AND message->'context'->'pdata'->>'id' = '${this.options.mobilePdataId}'`,
-                    "startTimeStamp": "2023-12-20 00:00:00",
-                    "endTimeStamp": "2023-12-30 00:00:00"
+                    "query": `SELECT COUNT(DISTINCT device_id) AS total_devices
+                                FROM ${this.options.viewName} WHERE pdata_id ='${this.options.mobilePdataId}'`,
+                    "startTimeStamp": "",
+                    "endTimeStamp": ""
                 },
                 {
                     "id": "total_plays",
                     "label": "Total Plays",
-                    "query": `SELECT COUNT(*) AS total_plays 
-                                FROM ${this.options.tableName} WHERE message->'edata'->>'type' = 'content' 
-                                AND message->>'eid' = 'START'`,
+                    "query": `SELECT COUNT(*) AS total_plays
+                                FROM ${this.options.viewName} WHERE event_type= 'content'
+                                AND event_id = 'START'`,
                     "startTimeStamp": "",
                     "endTimeStamp": ""
                 },
                 {
                     "id": "total_messages_from_story_bot",
                     "label": "Total messages from Story Bot",
-                    "query": `SELECT COUNT(*) AS total_messages_from_story_bot 
-                                FROM ${this.options.tableName} WHERE message->'context'->'pdata'->>'id'='${this.options.activityPdataId}'
-                                AND message->>'eid' = 'LOG' AND message->'edata'->>'type' = 'api_access'`,
+                    "query": `SELECT COUNT(*) AS total_messages_from_story_bot
+                                FROM ${this.options.viewName} WHERE pdata_id='${this.options.activityPdataId}'
+                                AND event_id = 'LOG' AND event_type= 'api_access'`,
                     "startTimeStamp": "",
                     "endTimeStamp": ""
                 },
@@ -169,33 +169,93 @@ class PostgresDispatcher extends winston.Transport {
                     "id": "total_messages_from_teacher_bot",
                     "label": "Total messages from Teacher Bot",
                     "query": `SELECT COUNT(*) AS total_messages_from_teacher_bot
-                                FROM ${this.options.tableName} WHERE message->'context'->'pdata'->>'id'='${this.options.sakhiPdataId}'
-                                AND message->>'eid' = 'LOG' AND message->'edata'->>'type' = 'api_access'
-                                AND message->'edata'->'params' @> '[{"input_audienceType": "teacher"}]'`,
+                                FROM ${this.options.viewName} WHERE pdata_id='${this.options.sakhiPdataId}'
+                                AND event_id = 'LOG' AND event_type = 'api_access'
+                                AND input_audienceType='teacher'`,
                     "startTimeStamp": "",
                     "endTimeStamp": ""
                 },
                 {
                     "id": "total_messages_from_parent_bot",
                     "label": "Total messages from Parent Bot",
-                    "query": `SELECT COUNT(*) AS total_messages_from_parent_bot 
-                                FROM ${this.options.tableName} WHERE message->'context'->'pdata'->>'id'='${this.options.sakhiPdataId}'
-                                AND message->>'eid' = 'LOG' AND message->'edata'->>'type' = 'api_access'
-                                AND message->'edata'->'params' @> '[{"input_audienceType": "parent"}]'`,
+                    "query": `SELECT COUNT(*) AS total_messages_from_parent_bot
+                                FROM ${this.options.viewName} WHERE pdata_id='${this.options.sakhiPdataId}'
+                                AND event_id = 'LOG' AND event_type = 'api_access'
+                                AND input_audienceType='parent'`,
                     "startTimeStamp": "",
                     "endTimeStamp": ""
                 },
                 {
                     "id": "total_IVRS_calls",
                     "label": "Total Devices",
-                    "query": `SELECT COUNT(*) AS total_IVRS_calls 
-                                FROM ${this.options.tableName} 
-                                WHERE message->'context'->'pdata'->>'id' = '${this.options.IVRSPdataId}'
-                                AND message->>'eid' = 'START'`,
+                    "query": `SELECT COUNT(*) AS total_IVRS_calls
+                                FROM ${this.options.viewName}
+                                WHERE pdata_id = '${this.options.IVRSPdataId}'
+                                AND event_id = 'START'`,
                     "startTimeStamp": "",
                     "endTimeStamp": ""
                 }
             ]
+
+        // const config =    [
+        //         {
+        //             "id": "total_devices",
+        //             "label": "Total Devices",
+        //             "query": `SELECT COUNT(DISTINCT message->'context'->'did'::text) AS total_devices 
+        //                         FROM ${this.options.tableName} WHERE message->'context'->'did' IS NOT NULL 
+        //                         AND message->'context'->'pdata'->>'id' = '${this.options.mobilePdataId}'`,
+        //             "startTimeStamp": "2023-12-20 00:00:00",
+        //             "endTimeStamp": "2023-12-30 00:00:00"
+        //         },
+        //         {
+        //             "id": "total_plays",
+        //             "label": "Total Plays",
+        //             "query": `SELECT COUNT(*) AS total_plays 
+        //                         FROM ${this.options.tableName} WHERE message->'edata'->>'type' = 'content' 
+        //                         AND message->>'eid' = 'START'`,
+        //             "startTimeStamp": "",
+        //             "endTimeStamp": ""
+        //         },
+        //         {
+        //             "id": "total_messages_from_story_bot",
+        //             "label": "Total messages from Story Bot",
+        //             "query": `SELECT COUNT(*) AS total_messages_from_story_bot 
+        //                         FROM ${this.options.tableName} WHERE message->'context'->'pdata'->>'id'='${this.options.activityPdataId}'
+        //                         AND message->>'eid' = 'LOG' AND message->'edata'->>'type' = 'api_access'`,
+        //             "startTimeStamp": "",
+        //             "endTimeStamp": ""
+        //         },
+        //         {
+        //             "id": "total_messages_from_teacher_bot",
+        //             "label": "Total messages from Teacher Bot",
+        //             "query": `SELECT COUNT(*) AS total_messages_from_teacher_bot
+        //                         FROM ${this.options.tableName} WHERE message->'context'->'pdata'->>'id'='${this.options.sakhiPdataId}'
+        //                         AND message->>'eid' = 'LOG' AND message->'edata'->>'type' = 'api_access'
+        //                         AND message->'edata'->'params' @> '[{"input_audienceType": "teacher"}]'`,
+        //             "startTimeStamp": "",
+        //             "endTimeStamp": ""
+        //         },
+        //         {
+        //             "id": "total_messages_from_parent_bot",
+        //             "label": "Total messages from Parent Bot",
+        //             "query": `SELECT COUNT(*) AS total_messages_from_parent_bot 
+        //                         FROM ${this.options.tableName} WHERE message->'context'->'pdata'->>'id'='${this.options.sakhiPdataId}'
+        //                         AND message->>'eid' = 'LOG' AND message->'edata'->>'type' = 'api_access'
+        //                         AND message->'edata'->'params' @> '[{"input_audienceType": "parent"}]'`,
+        //             "startTimeStamp": "",
+        //             "endTimeStamp": ""
+        //         },
+        //         {
+        //             "id": "total_IVRS_calls",
+        //             "label": "Total Devices",
+        //             "query": `SELECT COUNT(*) AS total_IVRS_calls 
+        //                         FROM ${this.options.tableName} 
+        //                         WHERE message->'context'->'pdata'->>'id' = '${this.options.IVRSPdataId}'
+        //                         AND message->>'eid' = 'START'`,
+        //             "startTimeStamp": "",
+        //             "endTimeStamp": ""
+        //         }
+        //     ]
 
         try{
             let asyncFunctions = []
