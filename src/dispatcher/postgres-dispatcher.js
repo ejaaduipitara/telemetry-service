@@ -138,6 +138,7 @@ class PostgresDispatcher extends winston.Transport {
         this.options.IVRSPdataId = this.options?.IVRSPdataId || `${this.options.environment}.ejp.ivrs`
         this.options.sakhiPdataId = this.options?.sakhiPdataId || 'ejp.sakhi.api.service'
 		this.options.viewName	= this.options?.viewName || 'telemetry_data_view'
+        console.log("Options--> ", this.options);
         const config =    [
                 {
                     "id": "total_devices",
@@ -196,6 +197,7 @@ class PostgresDispatcher extends winston.Transport {
                     "endTimeStamp": ""
                 }
             ]
+        console.log("Config used for metrics query ", config);
 
         // const config =    [
         //         {
@@ -271,6 +273,7 @@ class PostgresDispatcher extends winston.Transport {
             let result = {};
             Promise.allSettled(asyncFunctions)
                 .then(results => {
+                    console.log("Results from metrics queries ", results);
                     _.forEach(results, (res) => {
                         if(res.status === 'fulfilled'){
                             result = {...result, ...(res?.value?.rows[0] || {})}
