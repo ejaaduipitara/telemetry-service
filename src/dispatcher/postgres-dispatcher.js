@@ -125,7 +125,7 @@ class PostgresDispatcher extends winston.Transport {
     }
 
     async getMetricsData(req, callback){
-        console.log("Request received for metrics data ", req?.body?.request);
+
         const startTimeStamp = req?.body?.request?.startTimeStamp;
         const endTimeStamp = req?.body?.request?.endTimeStamp;
 

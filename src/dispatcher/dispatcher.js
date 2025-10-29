@@ -66,7 +66,6 @@ class Dispatcher {
     }
 
     getMetricsData(req, callback){
-        console.log(` :: Calling dispatcher.getMetricsData :: ===> "`)
         this.logger.transports['postgres'].getMetricsData(req, callback);
     }
 

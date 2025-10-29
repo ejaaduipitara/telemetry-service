@@ -106,11 +106,9 @@ class TelemetryService {
         };
     }
     getMetricsData(req, res) {
-        console.log(` :: Calling getMetricsData in telemetry service:: ===> "`)
         this.dispatcher.getMetricsData(req, this.getMetricsRequestCallBack(req, res));
     }
     getMetricsRequestCallBack(req, res) {
-        console.log(` :: Inside getMetricsData callback :: ===> "`)
         return (err, data) => {
             if (err) {
                 this.sendError(res, { id: req?.id || 'api.telemetry.metrics', params: { err: err } });
